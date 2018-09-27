@@ -41,7 +41,7 @@ window.onload = () => { // add blank 640x640 canvas when content is loaded
   createCanvas(16);
 }
 
-const state = { // object to track all information about the canvas that needs to persist: the grid itself, including all cell locations & colors; the library of colors used for the cell fill, and the current target cell of the mouse
+const state = { // object to track all information about the canvas that needs to persist
   startingOpacity: 0,
   opacityBump: 0.5,
   colors: ['#9400D3', '#4B0082', '#0000FF', '#00FF00', '#FFFF00', '#FF7F00', '#FF0000'],
@@ -59,15 +59,16 @@ const createCanvas = (n = 16) => { // function to draw canvas. Takes param for n
   }
 
   // Size and center the canvas
-  canvas.classList.add('canvas');
-  const mainDiv = document.querySelector('main');
-    const viewWidth = mainDiv.scrollWidth;
-    const viewHeight = mainDiv.scrollHeight;
+  const viewWidth = window.innerWidth || document.documentElement.clientWidth;
+  const viewHeight = window.innerHeight || document.documentElement.clientHeight;
   const canvasViewLength = Math.min(viewWidth, viewHeight) - 40;
-    canvas.width = canvasViewLength;
-    canvas.height = canvasViewLength;
-    canvas.style.marginLeft = `${(viewWidth - canvasViewLength) / 2}px`;
-    canvas.style.marginTop = `${(viewHeight - canvasViewLength) / 2}px`;
+  canvas.width = canvasViewLength;
+  canvas.height = canvasViewLength;
+  canvas.style.marginLeft = `${(viewWidth - canvasViewLength) / 2}px`;
+  canvas.style.marginTop = `${(viewHeight - canvasViewLength) / 2}px`;
+
+  // Add css class for styling
+  canvas.classList.add('canvas');
 
   // Create the data that remembers the squares
   createGrid(n);

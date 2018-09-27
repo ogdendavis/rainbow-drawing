@@ -6,6 +6,13 @@ body {
   margin: 0;
 }
 
+.settings-icon {
+  cursor: pointer;
+  position: fixed;
+  top: 5px;
+  left: 5px;
+}
+
 .main {
   box-sizing: border-box;
   position: absolute;
