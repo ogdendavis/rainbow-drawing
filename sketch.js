@@ -41,13 +41,12 @@ window.onload = () => { // add blank 640x640 canvas when content is loaded
   createCanvas(16);
 }
 
-const grid = {
-  //empty object to hold information about squares drawn on the canvas -- Since canvas elements don't remember what they've drawn, I'll have to keep information separately in order to modify individual cells and redraw the grid
+const state = { // object to track all information about the canvas that needs to persist: the grid itself, including all cell locations & colors; the library of colors used for the cell fill, and the current target cell of the mouse
+  colors: ['#9400D3', '#4B0082', '#0000FF', '#00FF00', '#FFFF00', '#FF7F00', '#FF0000'],
+  grid: {},
+  cellLength: 0,
+  target: ''
 }
-
-// hex codes for colors to use when filling
-const colors = ['#9400D3', '#4B0082', '#0000FF', '#00FF00', '#FFFF00',
-    '#FF7F00', '#FF0000'];
 
 const createCanvas = (n = 16) => { // function to draw canvas. Takes param for number of rows/columns
   const canvas = document.querySelector('canvas');
@@ -59,26 +58,33 @@ const createCanvas = (n = 16) => { // function to draw canvas. Takes param for n
 
   // Size and center the canvas
   canvas.classList.add('canvas');
-  const viewWidth = Math.max(document.documentElement.clientWidth || window.innerWidth || 0);
-  const viewHeight = Math.max(document.documentElement.clientHeight || window.innerHeight || 0);
-  const squareLength = Math.min(viewWidth, viewHeight) - 40;
-  canvas.width = squareLength;
-  canvas.height = squareLength;
-  canvas.style.marginLeft = `${(viewWidth - squareLength) / 2}px`;
-  canvas.style.marginTop = `${(viewHeight - squareLength) / 2}px`;
+  const mainDiv = document.querySelector('main');
+    const viewWidth = mainDiv.scrollWidth;
+    const viewHeight = mainDiv.scrollHeight;
+  const canvasViewLength = Math.min(viewWidth, viewHeight) - 40;
+    canvas.width = canvasViewLength;
+    canvas.height = canvasViewLength;
+    canvas.style.marginLeft = `${(viewWidth - canvasViewLength) / 2}px`;
+    canvas.style.marginTop = `${(viewHeight - canvasViewLength) / 2}px`;
 
   // Create the data that remembers the squares
   createGrid(n);
 
   // Use the data to draw the canvas
-  drawCanvas();
+  drawGrid();
+
+  // Now listen for mouse movement!
+  canvas.addEventListener('mousemove', getTargetCell);
 }
 
 const createGrid = (n) => {
-  const cellLength = 640 / n; //because canvas is always scaled from 640x640
-  for (let yPos = 0; yPos < 640; yPos += cellLength) {
-    for (let xPos = 0; xPos < 640; xPos += cellLength) {
-      grid[`${xPos},${yPos}`] = createCell(xPos, yPos, cellLength);
+  const canvas = document.querySelector('canvas');
+  const canvasLength = canvas.width;
+  const cellLength =  canvasLength / n; //because canvas is always scaled from 640x640
+  state.cellLength = cellLength; //store for future use when targeting cells
+  for (let yPos = 0; yPos < canvasLength; yPos += cellLength) {
+    for (let xPos = 0; xPos < canvasLength; xPos += cellLength) {
+      state.grid[`${xPos},${yPos}`] = createCell(xPos, yPos, cellLength);
     }
   }
 }
@@ -88,16 +94,38 @@ const createCell = (x=0, y=0, length=0) => {
     x: x,
     y: y,
     length: length,
-    color: colors[Math.floor(Math.random() * colors.length)],
+    color: state.colors[Math.floor(Math.random() * state.colors.length)],
     opacity: 1
   };
 }
 
-const drawCanvas = () => {
+const drawGrid = () => {
   const canvas = document.querySelector('canvas');
   const ctx = canvas.getContext('2d');
-  for (let cell in grid) {
-    ctx.fillStyle = grid[cell].color;
-    ctx.fillRect(grid[cell].x, grid[cell].y, grid[cell].length, grid[cell].length);
+  for (let cell in state.grid) {
+    ctx.fillStyle = state.grid[cell].color;
+    ctx.fillRect(state.grid[cell].x, state.grid[cell].y, state.grid[cell].length, state.grid[cell].length);
+  }
+}
+
+const getMousePosition = (event) => {
+  const canvas = document.querySelector('canvas');
+  const canvasArea = canvas.getBoundingClientRect();
+  return {
+    x: event.clientX - canvasArea.left,
+    y: event.clientY - canvasArea.top
+  };
+}
+
+const getTargetCell = (event) => {
+  const currentTarget = state.target;
+  const mousePosition = getMousePosition(event);
+  const mouseTargetX = mousePosition.x - (mousePosition.x % state.cellLength);
+  const mouseTargetY = mousePosition.y - (mousePosition.y % state.cellLength);
+  const mouseTarget = `${mouseTargetX},${mouseTargetY}`;
+  if (mouseTarget !== currentTarget) {
+    state.target = mouseTarget;
+    console.log(state.target);
+    console.log(state.grid[state.target]);
   }
 }
