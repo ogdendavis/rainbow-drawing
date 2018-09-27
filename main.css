@@ -24,3 +24,12 @@ body {
 .error a {
   color: gold;
 }
+
+.hidden {
+  display: none;
+}
+
+.canvas {
+  background-color: blue;
+  border-radius: 5px;
+}
