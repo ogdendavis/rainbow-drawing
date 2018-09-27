@@ -42,6 +42,8 @@ window.onload = () => { // add blank 640x640 canvas when content is loaded
 }
 
 const state = { // object to track all information about the canvas that needs to persist: the grid itself, including all cell locations & colors; the library of colors used for the cell fill, and the current target cell of the mouse
+  startingOpacity: 0,
+  opacityBump: 0.5,
   colors: ['#9400D3', '#4B0082', '#0000FF', '#00FF00', '#FFFF00', '#FF7F00', '#FF0000'],
   grid: {},
   cellLength: 0,
@@ -95,7 +97,7 @@ const createCell = (x=0, y=0, length=0) => {
     y: y,
     length: length,
     color: state.colors[Math.floor(Math.random() * state.colors.length)],
-    opacity: 1
+    opacity: state.startingOpacity
   };
 }
 
@@ -104,6 +106,7 @@ const drawGrid = () => {
   const ctx = canvas.getContext('2d');
   for (let cell in state.grid) {
     ctx.fillStyle = state.grid[cell].color;
+    ctx.globalAlpha = state.grid[cell].opacity;
     ctx.fillRect(state.grid[cell].x, state.grid[cell].y, state.grid[cell].length, state.grid[cell].length);
   }
 }
@@ -124,8 +127,32 @@ const getTargetCell = (event) => {
   const mouseTargetY = mousePosition.y - (mousePosition.y % state.cellLength);
   const mouseTarget = `${mouseTargetX},${mouseTargetY}`;
   if (mouseTarget !== currentTarget) {
-    state.target = mouseTarget;
-    console.log(state.target);
-    console.log(state.grid[state.target]);
+    setNewTargetCell(mouseTarget);
+    reDrawCell(mouseTarget);
   }
+}
+
+const setNewTargetCell = (cell) => {
+  // Update target flag in state
+  state.target = cell;
+  // Now update actual entry for target cell in grid object in state
+  const targetCell = state.grid[cell];
+  if (targetCell.opacity < 1) {
+    targetCell.opacity = targetCell.opacity + state.opacityBump;
+  } else if (targetCell.opacity === 1) {
+    targetCell.color = state.colors[Math.floor(Math.random() * state.colors.length)];
+    targetCell.opacity = state.startingOpacity;
+  }
+}
+
+const reDrawCell = (cell) => {
+  // Use updated grid object to redraw target cell
+  const canvas = document.querySelector('canvas');
+  const ctx = canvas.getContext('2d');
+  const targetCell = state.grid[cell];
+
+  ctx.clearRect(targetCell.x, targetCell.y, targetCell.length, targetCell.length);
+  ctx.fillStyle = targetCell.color;
+  ctx.globalAlpha = targetCell.opacity;
+  ctx.fillRect(targetCell.x, targetCell.y, targetCell.length, targetCell.length);
 }
