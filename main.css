@@ -11,6 +11,30 @@ body {
   position: fixed;
   top: 5px;
   left: 5px;
+  z-index: 2;
+  background: #ddd;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+}
+
+.settings-modal {
+  background: linear-gradient(rgba(20,20,20,0.9),rgba(60,60,60,0.9));
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: 0;
+  z-index: 1;
+}
+
+.dummy {
+  color: #ddd;
+  font-size: 2rem;
+  text-align: center;
+  margin: 50vh auto;
+  width: 50%;
+  transform: translateY(-50%);
 }
 
 .main {
@@ -21,6 +45,7 @@ body {
   bottom: 0;
   left: 0;
   margin: 0;
+  z-index: -1;
 }
 
 .error {

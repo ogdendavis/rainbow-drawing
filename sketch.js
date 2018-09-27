@@ -38,8 +38,13 @@ window.onload = () => { // add blank 640x640 canvas when content is loaded
 
   main.appendChild(canvas);
 
-  createCanvas(16);
+  createCanvas();
+
+  const settingsIcon = document.querySelector('.settings-icon');
+  settingsIcon.addEventListener('click', toggleSettingsModal);
 }
+
+/* ********** 'Game' state, logic, and display ********** */
 
 const state = { // object to track all information about the canvas that needs to persist
   startingOpacity: 0,
@@ -156,4 +161,32 @@ const reDrawCell = (cell) => {
   ctx.fillStyle = targetCell.color;
   ctx.globalAlpha = targetCell.opacity;
   ctx.fillRect(targetCell.x, targetCell.y, targetCell.length, targetCell.length);
+}
+
+/* **********  Now for Settings! ********** */
+
+const toggleSettingsModal = (event) => {
+  const settingsModal = document.querySelector('.settings-modal');
+  if (settingsModal) {
+    // if the modal exists
+    // REMOVE EVENT LISTENERS FROM ALL SETTINGS MODAL ELEMENTS HERE
+
+    settingsModal.remove();
+  } else {
+    // if it doesn't exist, draw it!
+    createSettingsModal();
+  }
+}
+
+const createSettingsModal = () => {
+  const settingsModal = document.createElement('div');
+  settingsModal.classList.add('settings-modal');
+
+  const dummy = document.createElement('div');
+  dummy.classList.add('dummy');
+  dummy.textContent = 'This is a dummy settings screen!';
+  settingsModal.appendChild(dummy);
+
+  const header = document.querySelector('header');
+  header.appendChild(settingsModal);
 }
