@@ -89,7 +89,7 @@ const createCanvas = (n = state.gridSize) => { // function to draw canvas. Takes
 const createGrid = (n) => {
   const canvas = document.querySelector('canvas');
   const canvasLength = canvas.width;
-  const cellLength =  canvasLength / n; //because canvas is always scaled from 640x640
+  const cellLength =  canvasLength / n;
   state.cellLength = cellLength; //store for future use when targeting cells
   for (let yPos = 0; yPos < canvasLength; yPos += cellLength) {
     for (let xPos = 0; xPos < canvasLength; xPos += cellLength) {
@@ -117,6 +117,8 @@ const drawGrid = () => {
     ctx.fillRect(state.grid[cell].x, state.grid[cell].y, state.grid[cell].length, state.grid[cell].length);
   }
 }
+
+/* ********** For mouse tracking and re-drawing ********** */
 
 const getMousePosition = (event) => {
   const canvas = document.querySelector('canvas');
@@ -167,11 +169,14 @@ const reDrawCell = (cell) => {
 /* **********  Now for Settings! ********** */
 
 const toggleSettingsModal = (event) => {
-  console.log('toggle fired');
   const settingsModal = document.querySelector('.settings-modal');
   if (settingsModal) {
     // if the modal exists
     // REMOVE EVENT LISTENERS FROM ALL SETTINGS MODAL ELEMENTS HERE
+    const clearGridButton = document.getElementById('clearGridButton');
+      clearGridButton.removeEventListener('click', clearGrid);
+    const newSizeButton = document.getElementById('newSizeButton');
+      newSizeButton.removeEventListener('click', changeGridSize);
 
     settingsModal.remove();
   } else {
@@ -185,29 +190,39 @@ const createSettingsModal = () => {
   settingsModal.classList.add('settings-modal');
 
   // Form Container
-  const settingsContainer = document.createElement('form');
-    settingsContainer.classList.add('settings-form');
+  const settingsContainer = document.createElement('div');
+    settingsContainer.classList.add('settings-container');
 
   // Clear Grid
   const clearGridDiv = document.createElement('div');
   const clearGridButton = document.createElement('button');
     clearGridButton.textContent = 'Clear All';
+    clearGridButton.id = 'clearGridButton';
     clearGridButton.addEventListener('click', clearGrid);
   clearGridDiv.appendChild(clearGridButton);
 
-
-  /*
   // Change Size
   const sizeChangeDiv = document.createElement('div');
-  const enterNewSize = document.createElement('input');
-    enterNewSize.type = 'number';
-    enterNewSize.min = 2;
-    enterNewSize.max = 128;
-  const submitNewSize = document.createElement('button');
-    submitNewSize.textContent = 'Confirm';
-  */
+  const sizeChangeFieldset = document.createElement('fieldset');
+    const sizeChangeLegend = document.createElement('legend');
+      sizeChangeLegend.textContent = 'Change Grid Size:';
+    const enterNewSize = document.createElement('input');
+      enterNewSize.type = 'number';
+      enterNewSize.min = 2;
+      enterNewSize.max = 128;
+      enterNewSize.value = state.gridSize;
+    const newSizeButton = document.createElement('button');
+      newSizeButton.textContent = 'Confirm';
+      newSizeButton.id = 'newSizeButton';
+      newSizeButton.addEventListener('click', changeGridSize);
+    sizeChangeFieldset.appendChild(sizeChangeLegend);
+    sizeChangeFieldset.appendChild(enterNewSize);
+    sizeChangeFieldset.appendChild(newSizeButton);
+  sizeChangeDiv.appendChild(sizeChangeFieldset);
+
 
   settingsContainer.appendChild(clearGridDiv);
+  settingsContainer.appendChild(sizeChangeDiv);
 
   settingsModal.appendChild(settingsContainer);
 
@@ -215,14 +230,12 @@ const createSettingsModal = () => {
   header.appendChild(settingsModal);
 }
 
-const clearGrid = () => {
-  // Set variables for canvas
+const clearGrid = (event) => {
   const canvas = document.querySelector('canvas');
   const ctx = canvas.getContext('2d');
 
   // Reset state -- don't redraw whole grid, since size didn't change -- just re-randomize colors and reset opacity
-  state.active = '';
-  console.log(state.grid);
+  state.target = '';
   for (let cell in state.grid) {
     state.grid[cell].opacity = state.startingOpacity;
     state.grid[cell].color = state.colors[Math.floor(Math.random() * state.colors.length)];
@@ -231,3 +244,35 @@ const clearGrid = () => {
   // Clear already drawn rectangles
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
+
+const changeGridSize = (event) => {
+  const canvas = document.querySelector('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const newSizeField = document.querySelector('input[type="number"]');
+  const newSize = newSizeField.value;
+
+  // Reset state
+  state.target = '';
+  state.grid = {};
+  state.cellLength = 0;
+  state.gridSize = newSize;
+
+  // Create new grid, clear existing drawing, and draw new grid
+  createGrid(newSize);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawGrid();
+  console.log(state);
+}
+
+/*
+const state = { // object to track all information about the canvas that needs to persist
+  startingOpacity: 0,
+  opacityBump: 0.5,
+  colors: ['#9400D3', '#4B0082', '#0000FF', '#00FF00', '#FFFF00', '#FF7F00', '#FF0000'],
+  grid: {},
+  gridSize: 16,
+  cellLength: 0,
+  target: ''
+}
+*/

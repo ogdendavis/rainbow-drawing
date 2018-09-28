@@ -28,7 +28,7 @@ body {
   z-index: 1;
 }
 
-.settings-form {
+.settings-container {
   color: #ddd;
   font-size: 2rem;
   text-align: center;
