@@ -51,11 +51,12 @@ const state = { // object to track all information about the canvas that needs t
   opacityBump: 0.5,
   colors: ['#9400D3', '#4B0082', '#0000FF', '#00FF00', '#FFFF00', '#FF7F00', '#FF0000'],
   grid: {},
+  gridSize: 16,
   cellLength: 0,
   target: ''
 }
 
-const createCanvas = (n = 16) => { // function to draw canvas. Takes param for number of rows/columns
+const createCanvas = (n = state.gridSize) => { // function to draw canvas. Takes param for number of rows/columns
   const canvas = document.querySelector('canvas');
   if (canvas.getContext) { // if browser supports canvas, define context for drawing
     const ctx = canvas.getContext('2d');
@@ -166,6 +167,7 @@ const reDrawCell = (cell) => {
 /* **********  Now for Settings! ********** */
 
 const toggleSettingsModal = (event) => {
+  console.log('toggle fired');
   const settingsModal = document.querySelector('.settings-modal');
   if (settingsModal) {
     // if the modal exists
@@ -182,11 +184,50 @@ const createSettingsModal = () => {
   const settingsModal = document.createElement('div');
   settingsModal.classList.add('settings-modal');
 
-  const dummy = document.createElement('div');
-  dummy.classList.add('dummy');
-  dummy.textContent = 'This is a dummy settings screen!';
-  settingsModal.appendChild(dummy);
+  // Form Container
+  const settingsContainer = document.createElement('form');
+    settingsContainer.classList.add('settings-form');
+
+  // Clear Grid
+  const clearGridDiv = document.createElement('div');
+  const clearGridButton = document.createElement('button');
+    clearGridButton.textContent = 'Clear All';
+    clearGridButton.addEventListener('click', clearGrid);
+  clearGridDiv.appendChild(clearGridButton);
+
+
+  /*
+  // Change Size
+  const sizeChangeDiv = document.createElement('div');
+  const enterNewSize = document.createElement('input');
+    enterNewSize.type = 'number';
+    enterNewSize.min = 2;
+    enterNewSize.max = 128;
+  const submitNewSize = document.createElement('button');
+    submitNewSize.textContent = 'Confirm';
+  */
+
+  settingsContainer.appendChild(clearGridDiv);
+
+  settingsModal.appendChild(settingsContainer);
 
   const header = document.querySelector('header');
   header.appendChild(settingsModal);
+}
+
+const clearGrid = () => {
+  // Set variables for canvas
+  const canvas = document.querySelector('canvas');
+  const ctx = canvas.getContext('2d');
+
+  // Reset state -- don't redraw whole grid, since size didn't change -- just re-randomize colors and reset opacity
+  state.active = '';
+  console.log(state.grid);
+  for (let cell in state.grid) {
+    state.grid[cell].opacity = state.startingOpacity;
+    state.grid[cell].color = state.colors[Math.floor(Math.random() * state.colors.length)];
+  }
+
+  // Clear already drawn rectangles
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
