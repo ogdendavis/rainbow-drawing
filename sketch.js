@@ -77,7 +77,7 @@ const createCanvas = (n = state.gridSize) => { // function to draw canvas. Takes
 
   // Now listen for mouse movement!
   canvas.addEventListener('mousemove', getTargetCell);
-  canvas.addEventListener('click', (e) => {console.log(getTargetCell(e))});
+  canvas.addEventListener('touchmove', getTargetCell);
 }
 
 const createGrid = (n) => {
@@ -89,6 +89,7 @@ const createGrid = (n) => {
       state.grid[`${xPos},${yPos}`] = createCell(xPos, yPos, cellLength);
     }
   }
+  console.log(state.grid);
 }
 
 const createCell = (x=0, y=0, length=0) => {
@@ -114,13 +115,27 @@ const drawGrid = () => {
 
 /* ********** For mouse tracking and re-drawing ********** */
 
-const getMousePosition = (event) => {
+const testTouch = (event) => {
+  console.log(event);
+  //console.log(event.changedTouches[0].screenX, event.changedTouches[0].screenY);
+}
+
+const getMousePosition = (event) => { // Can also handle touches
   const canvas = document.querySelector('canvas');
   const canvasArea = canvas.getBoundingClientRect();
   const scale = canvas.width / canvasArea.width;
+  let positionX, positionY;
+  if (event.changedTouches) {
+    positionX = event.changedTouches[0].clientX;
+    positionY = event.changedTouches[0].clientY;
+  }
+  else {
+    positionX = event.clientX;
+    positionY = event.clientY;
+  }
   return {
-    x: (event.clientX - canvasArea.left) * scale,
-    y: (event.clientY - canvasArea.top) * scale
+    x: (positionX - canvasArea.left) * scale,
+    y: (positionY - canvasArea.top) * scale
   };
 }
 
@@ -130,7 +145,6 @@ const getTargetCell = (event) => {
   let mouseTargetX = mousePosition.x - (mousePosition.x % state.cellLength);
   let mouseTargetY = mousePosition.y - (mousePosition.y % state.cellLength);
   let mouseTarget = `${mouseTargetX},${mouseTargetY}`;
-  // Fix for weird rounding things: Keep rounding down by hundredths until you find the right cell!
   if (mouseTarget !== currentTarget) {
     setNewTargetCell(mouseTarget);
     reDrawCell(mouseTarget);
