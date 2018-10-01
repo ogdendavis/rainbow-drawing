@@ -50,7 +50,7 @@ const state = { // object to track all information about the canvas that needs t
   colors: ['#9400D3', '#4B0082', '#0000FF', '#00FF00', '#FFFF00', '#FF7F00', '#FF0000'],
   grid: {},
   gridSize: 16,
-  cellLength: 0,
+  cellLength: 40, //Does not change!
   target: ''
 }
 
@@ -61,6 +61,10 @@ const createCanvas = (n = state.gridSize) => { // function to draw canvas. Takes
   } else { // if browser doesn't support canvas, no need to draw. So get out of here!
     return;
   }
+
+  // Sizing canvas for coordinate purposes -- actual display size determined by CSS
+  canvas.width = n * 40;
+  canvas.height = n * 40;
 
   // Add css class for styling
   canvas.classList.add('canvas');
@@ -76,30 +80,15 @@ const createCanvas = (n = state.gridSize) => { // function to draw canvas. Takes
   canvas.addEventListener('click', (e) => {console.log(getTargetCell(e))});
 }
 
-const scaleCanvas = (canvas) => {
-  const viewWidth = window.innerWidth || document.documentElement.clientWidth;
-  const viewHeight = window.innerHeight || document.documentElement.clientHeight;
-  const canvasViewLength = Math.min(viewWidth, viewHeight) - 40;
-  canvas.width = canvasViewLength;
-  canvas.height = canvasViewLength;
-  canvas.style.marginLeft = `${(viewWidth - canvasViewLength) / 2}px`;
-  canvas.style.marginTop = `${(viewHeight - canvasViewLength) / 2}px`;
-  return canvasViewLength;
-}
-
 const createGrid = (n) => {
   const canvas = document.querySelector('canvas');
-  const canvasLength = scaleCanvas(canvas); // Scales & styles canvas, and returns length of sides
-  const cellLength = Math.floor((canvasLength / n) * 100) / 100;
-  state.cellLength = cellLength; //store for future use when targeting cells
+  const cellLength = state.cellLength;
+  const canvasLength = n * cellLength;
   for (let yPos = 0; yPos < canvasLength; yPos += cellLength) {
     for (let xPos = 0; xPos < canvasLength; xPos += cellLength) {
-      xPos = Math.floor(xPos * 100) / 100;
-      yPos = Math.floor(yPos * 100) / 100;
       state.grid[`${xPos},${yPos}`] = createCell(xPos, yPos, cellLength);
     }
   }
-  console.log(state.grid);
 }
 
 const createCell = (x=0, y=0, length=0) => {
