@@ -3,8 +3,6 @@
 window.onload = () => { // add blank 640x640 canvas when content is loaded
   const main = document.querySelector('.main');
   const canvas = document.createElement('canvas');
-    canvas.width = 640;
-    canvas.height = 640;
 
   const canvasErrorMessage = document.createElement('div');
     canvasErrorMessage.classList.add('error');
@@ -64,15 +62,6 @@ const createCanvas = (n = state.gridSize) => { // function to draw canvas. Takes
     return;
   }
 
-  // Size and center the canvas
-  const viewWidth = window.innerWidth || document.documentElement.clientWidth;
-  const viewHeight = window.innerHeight || document.documentElement.clientHeight;
-  const canvasViewLength = Math.min(viewWidth, viewHeight) - 40;
-  canvas.width = canvasViewLength;
-  canvas.height = canvasViewLength;
-  canvas.style.marginLeft = `${(viewWidth - canvasViewLength) / 2}px`;
-  canvas.style.marginTop = `${(viewHeight - canvasViewLength) / 2}px`;
-
   // Add css class for styling
   canvas.classList.add('canvas');
 
@@ -84,18 +73,33 @@ const createCanvas = (n = state.gridSize) => { // function to draw canvas. Takes
 
   // Now listen for mouse movement!
   canvas.addEventListener('mousemove', getTargetCell);
+  canvas.addEventListener('click', (e) => {console.log(getTargetCell(e))});
+}
+
+const scaleCanvas = (canvas) => {
+  const viewWidth = window.innerWidth || document.documentElement.clientWidth;
+  const viewHeight = window.innerHeight || document.documentElement.clientHeight;
+  const canvasViewLength = Math.min(viewWidth, viewHeight) - 40;
+  canvas.width = canvasViewLength;
+  canvas.height = canvasViewLength;
+  canvas.style.marginLeft = `${(viewWidth - canvasViewLength) / 2}px`;
+  canvas.style.marginTop = `${(viewHeight - canvasViewLength) / 2}px`;
+  return canvasViewLength;
 }
 
 const createGrid = (n) => {
   const canvas = document.querySelector('canvas');
-  const canvasLength = canvas.width;
-  const cellLength =  canvasLength / n;
+  const canvasLength = scaleCanvas(canvas); // Scales & styles canvas, and returns length of sides
+  const cellLength = Math.floor((canvasLength / n) * 100) / 100;
   state.cellLength = cellLength; //store for future use when targeting cells
   for (let yPos = 0; yPos < canvasLength; yPos += cellLength) {
     for (let xPos = 0; xPos < canvasLength; xPos += cellLength) {
+      xPos = Math.floor(xPos * 100) / 100;
+      yPos = Math.floor(yPos * 100) / 100;
       state.grid[`${xPos},${yPos}`] = createCell(xPos, yPos, cellLength);
     }
   }
+  console.log(state.grid);
 }
 
 const createCell = (x=0, y=0, length=0) => {
@@ -111,6 +115,7 @@ const createCell = (x=0, y=0, length=0) => {
 const drawGrid = () => {
   const canvas = document.querySelector('canvas');
   const ctx = canvas.getContext('2d');
+  ctx.beginPath();
   for (let cell in state.grid) {
     ctx.fillStyle = state.grid[cell].color;
     ctx.globalAlpha = state.grid[cell].opacity;
@@ -132,13 +137,15 @@ const getMousePosition = (event) => {
 const getTargetCell = (event) => {
   const currentTarget = state.target;
   const mousePosition = getMousePosition(event);
-  const mouseTargetX = mousePosition.x - (mousePosition.x % state.cellLength);
-  const mouseTargetY = mousePosition.y - (mousePosition.y % state.cellLength);
-  const mouseTarget = `${mouseTargetX},${mouseTargetY}`;
+  let mouseTargetX = mousePosition.x - (mousePosition.x % state.cellLength);
+  let mouseTargetY = mousePosition.y - (mousePosition.y % state.cellLength);
+  let mouseTarget = `${mouseTargetX},${mouseTargetY}`;
+  // Fix for weird rounding things: Keep rounding down by hundredths until you find the right cell!
   if (mouseTarget !== currentTarget) {
     setNewTargetCell(mouseTarget);
     reDrawCell(mouseTarget);
   }
+  return mouseTarget;
 }
 
 const setNewTargetCell = (cell) => {
@@ -220,9 +227,8 @@ const createSettingsModal = () => {
     sizeChangeFieldset.appendChild(newSizeButton);
   sizeChangeDiv.appendChild(sizeChangeFieldset);
 
-
-  settingsContainer.appendChild(clearGridDiv);
   settingsContainer.appendChild(sizeChangeDiv);
+  settingsContainer.appendChild(clearGridDiv);
 
   settingsModal.appendChild(settingsContainer);
 
@@ -243,6 +249,8 @@ const clearGrid = (event) => {
 
   // Clear already drawn rectangles
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  toggleSettingsModal();
 }
 
 const changeGridSize = (event) => {
@@ -262,17 +270,6 @@ const changeGridSize = (event) => {
   createGrid(newSize);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawGrid();
-  console.log(state);
-}
 
-/*
-const state = { // object to track all information about the canvas that needs to persist
-  startingOpacity: 0,
-  opacityBump: 0.5,
-  colors: ['#9400D3', '#4B0082', '#0000FF', '#00FF00', '#FFFF00', '#FF7F00', '#FF0000'],
-  grid: {},
-  gridSize: 16,
-  cellLength: 0,
-  target: ''
+  toggleSettingsModal();
 }
-*/
