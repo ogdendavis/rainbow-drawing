@@ -117,9 +117,10 @@ const drawGrid = () => {
 const getMousePosition = (event) => {
   const canvas = document.querySelector('canvas');
   const canvasArea = canvas.getBoundingClientRect();
+  const scale = canvas.width / canvasArea.width;
   return {
-    x: event.clientX - canvasArea.left,
-    y: event.clientY - canvasArea.top
+    x: (event.clientX - canvasArea.left) * scale,
+    y: (event.clientY - canvasArea.top) * scale
   };
 }
 
