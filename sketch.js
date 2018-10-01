@@ -249,10 +249,12 @@ const changeGridSize = (event) => {
   const newSizeField = document.querySelector('input[type="number"]');
   const newSize = newSizeField.value;
 
+  canvas.width = newSize * state.cellLength;
+  canvas.height = newSize * state.cellLength;
+
   // Reset state
   state.target = '';
   state.grid = {};
-  state.cellLength = 0;
   state.gridSize = newSize;
 
   // Create new grid, clear existing drawing, and draw new grid
