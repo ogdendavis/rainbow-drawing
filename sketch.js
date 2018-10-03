@@ -174,9 +174,18 @@ const toggleSettingsModal = (event) => {
       clearGridButton.removeEventListener('click', clearGrid);
     const newSizeButton = document.getElementById('newSizeButton');
       newSizeButton.removeEventListener('click', changeGridSize);
+    const colorChangeButton = document.getElementById('colorChangeButton');
+      colorChangeButton.removeEventListener('click', changeColors);
+    settingsModal.removeEventListener('click', shouldSettingsModalToggle);
     settingsModal.remove();
   } else {
     createSettingsModal();
+  }
+}
+
+const shouldSettingsModalToggle = (event) => {
+  if (event.target.classList.contains('settings-modal')) {
+    toggleSettingsModal();
   }
 }
 
@@ -206,15 +215,120 @@ const createSettingsModal = () => {
       sizeChangeFieldset.appendChild(newSizeButton);
     sizeChangeDiv.appendChild(sizeChangeFieldset);
 
+  const colorChangeDiv = document.createElement('div');
+    colorChangeDiv.classList.add('colorChangeDiv');
+    const colorChangeFieldset = document.createElement('fieldset');
+      const colorChangeLegend = document.createElement('legend');
+        colorChangeLegend.textContent = 'Change Colors'
+      colorChangeFieldset.classList.add('colorChangeFieldset');
+      const rainbowDiv = document.createElement('div');
+        rainbowDiv.classList.add('colorChangeFieldset__container');
+        const rainbowButton = document.createElement('input');
+          rainbowButton.type = 'radio';
+          rainbowButton.id = 'rainbowButton';
+          rainbowButton.value = 'rainbow';
+          rainbowButton.name = 'colorSelector';
+        const rainbowLabel = document.createElement('label');
+          rainbowLabel.for = 'rainbowButton';
+          rainbowLabel.textContent = 'Rainbow';
+        rainbowDiv.appendChild(rainbowButton);
+        rainbowDiv.appendChild(rainbowLabel);
+      const grayScaleDiv = document.createElement('div');
+        grayScaleDiv.classList.add('colorChangeFieldset__container');
+        const grayScaleButton = document.createElement('input');
+          grayScaleButton.type = 'radio';
+          grayScaleButton.id = 'grayScaleButton';
+          grayScaleButton.value = 'grayScale';
+          grayScaleButton.name = 'colorSelector';
+        const grayScaleLabel = document.createElement('label');
+          grayScaleLabel.for = 'grayScaleButton';
+          grayScaleLabel.textContent = 'Grayscale';
+        grayScaleDiv.appendChild(grayScaleButton);
+        grayScaleDiv.appendChild(grayScaleLabel);
+      const beachDiv = document.createElement('div');
+        beachDiv.classList.add('colorChangeFieldset__container');
+        const beachButton = document.createElement('input');
+          beachButton.type = 'radio';
+          beachButton.id = 'beachButton';
+          beachButton.value = 'beach';
+          beachButton.name = 'colorSelector';
+        const beachLabel = document.createElement('label');
+          beachLabel.for = 'beachButton';
+          beachLabel.textContent = 'Beach';
+        beachDiv.appendChild(beachButton);
+        beachDiv.appendChild(beachLabel);
+      const neonDiv = document.createElement('div');
+        neonDiv.classList.add('colorChangeFieldset__container');
+        const neonButton = document.createElement('input');
+          neonButton.type = 'radio';
+          neonButton.id = 'neonButton';
+          neonButton.value = 'neon';
+          neonButton.name = 'colorSelector';
+        const neonLabel = document.createElement('label');
+          neonLabel.for = 'neonButton';
+          neonLabel.textContent = 'Neon';
+        neonDiv.appendChild(neonButton);
+        neonDiv.appendChild(neonLabel);
+      const silverAndBlueDiv = document.createElement('div');
+        silverAndBlueDiv.classList.add('colorChangeFieldset__container');
+        const silverAndBlueButton = document.createElement('input');
+          silverAndBlueButton.type = 'radio';
+          silverAndBlueButton.id = 'silverAndBlueButton';
+          silverAndBlueButton.value = 'silverAndBlue';
+          silverAndBlueButton.name = 'colorSelector';
+        const silverAndBlueLabel = document.createElement('label');
+          silverAndBlueLabel.for = 'silverAndBlueButton';
+          silverAndBlueLabel.textContent = 'Silver & Blue';
+        silverAndBlueDiv.appendChild(silverAndBlueButton);
+        silverAndBlueDiv.appendChild(silverAndBlueLabel);
+      const colorChangeButton = document.createElement('button');
+        colorChangeButton.textContent = 'Confirm';
+        colorChangeButton.id = 'colorChangeButton';
+        colorChangeButton.addEventListener('click', changeColors);
+      colorChangeFieldset.appendChild(colorChangeLegend);
+      colorChangeFieldset.appendChild(rainbowDiv);
+      colorChangeFieldset.appendChild(grayScaleDiv);
+      colorChangeFieldset.appendChild(beachDiv);
+      colorChangeFieldset.appendChild(neonDiv);
+      colorChangeFieldset.appendChild(silverAndBlueDiv);
+      colorChangeFieldset.appendChild(colorChangeButton);
+    colorChangeDiv.appendChild(colorChangeFieldset);
+
+  const firstActiveColor = state.colors[0];
+  let activeColorsetId = '';
+  switch (firstActiveColor) {
+    case '#9400D3':
+      activeColorsetId = 'rainbowButton';
+      break;
+    case '#222':
+      activeColorsetId = 'grayScaleButton';
+      break;
+    case '#EAE7AF':
+      activeColorsetId = 'beachButton';
+      break;
+    case '#FF0099':
+      activeColorsetId = 'neonButton';
+      break;
+    case '#003594':
+      activeColorsetId = 'silverAndBlueButton';
+      break;
+  }
+  window.setTimeout(() => {
+    const activeColorsetButton = document.getElementById(activeColorsetId);
+    activeColorsetButton.checked = true;
+  }, 10);
+
 
   const settingsContainer = document.createElement('div');
     settingsContainer.classList.add('settings-container');
+    settingsContainer.appendChild(colorChangeDiv);
     settingsContainer.appendChild(sizeChangeDiv);
     settingsContainer.appendChild(clearGridDiv);
 
   const settingsModal = document.createElement('div');
     settingsModal.classList.add('settings-modal');
     settingsModal.appendChild(settingsContainer);
+    settingsModal.addEventListener('click', shouldSettingsModalToggle);
 
   const header = document.querySelector('header');
     header.appendChild(settingsModal);
@@ -245,4 +359,26 @@ const drawNewGrid = (newSize) => {
   createGrid(newSize);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawGrid();
+}
+
+const changeColors = (event) => {
+  const colorOptions = {
+    rainbow: ['#9400D3', '#4B0082', '#0000FF', '#00FF00', '#FFFF00', '#FF7F00', '#FF0000'],
+    grayScale: ['#222'],
+    beach: ['#EAE7AF', '#FBC88A', '#40CAEE', '#40CAEE', '#FF7ABC'],
+    neon: ['#FF0099', '#F3F315', '#83F52C', '#FF6600', '#6E0DD0'],
+    silverAndBlue: ['#003594', '#003594', '#041E42', '#869397', '#7F9695']
+  }
+
+  const colorChangeFieldsetElements = document.querySelector('.colorChangeFieldset').elements;
+  let newColors;
+  for (let element in colorChangeFieldsetElements) {
+    if (colorChangeFieldsetElements[element].checked === true) {
+      newColors = colorChangeFieldsetElements[element].value;
+    }
+  }
+
+  state.colors = colorOptions[newColors];
+  drawNewGrid(state.gridSize);
+  toggleSettingsModal();
 }
