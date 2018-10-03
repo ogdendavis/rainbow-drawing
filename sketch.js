@@ -281,17 +281,20 @@ const createSettingsModal = () => {
           silverAndBlueLabel.textContent = 'Silver & Blue';
         silverAndBlueDiv.appendChild(silverAndBlueButton);
         silverAndBlueDiv.appendChild(silverAndBlueLabel);
-      const colorChangeButton = document.createElement('button');
-        colorChangeButton.textContent = 'Confirm';
-        colorChangeButton.id = 'colorChangeButton';
-        colorChangeButton.addEventListener('click', changeColors);
+      const buttonDiv = document.createElement('div');
+        buttonDiv.classList.add('colorChangeFieldset__container');
+        const colorChangeButton = document.createElement('button');
+          colorChangeButton.textContent = 'Confirm';
+          colorChangeButton.id = 'colorChangeButton';
+          colorChangeButton.addEventListener('click', changeColors);
+        buttonDiv.appendChild(colorChangeButton);
       colorChangeFieldset.appendChild(colorChangeLegend);
       colorChangeFieldset.appendChild(rainbowDiv);
       colorChangeFieldset.appendChild(grayScaleDiv);
       colorChangeFieldset.appendChild(beachDiv);
       colorChangeFieldset.appendChild(neonDiv);
       colorChangeFieldset.appendChild(silverAndBlueDiv);
-      colorChangeFieldset.appendChild(colorChangeButton);
+      colorChangeFieldset.appendChild(buttonDiv);
     colorChangeDiv.appendChild(colorChangeFieldset);
 
   const firstActiveColor = state.colors[0];
